@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"Go-Architecture/common"
 	"Go-Architecture/domain"
 	"Go-Architecture/domain/entity"
 	"github.com/gin-gonic/gin"
@@ -17,7 +18,7 @@ func (tc TaskController) Create(c *gin.Context) {
 
 	err := c.ShouldBind(&task)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, domain.ErrorResponse{Message: err.Error()})
+		c.JSON(http.StatusBadRequest, common.ErrorResponse{Message: err.Error()})
 		return
 	}
 
@@ -28,11 +29,11 @@ func (tc TaskController) Create(c *gin.Context) {
 	// Create task
 	err = tc.TaskUsecase.Create(c, &task)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, domain.ErrorResponse{Message: err.Error()})
+		c.JSON(http.StatusInternalServerError, common.ErrorResponse{Message: err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, domain.SuccessResponse{
+	c.JSON(http.StatusOK, common.SuccessResponse{
 		Message: "Task created successfully",
 	})
 }

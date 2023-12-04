@@ -2,6 +2,7 @@ package controller
 
 import (
 	"Go-Architecture/bootstrap"
+	"Go-Architecture/common"
 	"Go-Architecture/domain"
 	"Go-Architecture/domain/entity"
 	"github.com/gin-gonic/gin"
@@ -21,14 +22,14 @@ func (sc SignupController) Signup(context *gin.Context) {
 
 	err := context.ShouldBind(&request)
 	if err != nil {
-		context.JSON(http.StatusBadRequest, domain.ErrorResponse{Message: err.Error()})
+		context.JSON(http.StatusBadRequest, common.ErrorResponse{Message: err.Error()})
 		return
 	}
 
 	// Check email is registered
 	_, err = sc.SignupUsecase.GetUserByEmail(context, request.Email)
 	if err == nil {
-		context.JSON(http.StatusConflict, domain.ErrorResponse{Message: "User already exists with the given email!"})
+		context.JSON(http.StatusConflict, common.ErrorResponse{Message: "User already exists with the given email!"})
 		return
 	}
 
@@ -36,7 +37,7 @@ func (sc SignupController) Signup(context *gin.Context) {
 	encryptedPassword, err := bcrypt.GenerateFromPassword([]byte(request.Password),
 		bcrypt.DefaultCost)
 	if err != nil {
-		context.JSON(http.StatusInternalServerError, domain.ErrorResponse{
+		context.JSON(http.StatusInternalServerError, common.ErrorResponse{
 			Message: err.Error(),
 		})
 		return
@@ -53,7 +54,7 @@ func (sc SignupController) Signup(context *gin.Context) {
 
 	err = sc.SignupUsecase.Create(context, &user)
 	if err != nil {
-		context.JSON(http.StatusInternalServerError, domain.ErrorResponse{
+		context.JSON(http.StatusInternalServerError, common.ErrorResponse{
 			Message: err.Error(),
 		})
 		return
@@ -62,7 +63,7 @@ func (sc SignupController) Signup(context *gin.Context) {
 	// Create AccessToken
 	accessToken, err := sc.SignupUsecase.CreateAccessToken(&user, sc.Env.AccessTokenSecret, sc.Env.AccessTokenExpiryHour)
 	if err != nil {
-		context.JSON(http.StatusInternalServerError, domain.ErrorResponse{
+		context.JSON(http.StatusInternalServerError, common.ErrorResponse{
 			Message: err.Error(),
 		})
 		return
@@ -71,7 +72,7 @@ func (sc SignupController) Signup(context *gin.Context) {
 	// Create Refresh token
 	refreshToken, err := sc.SignupUsecase.CreateAccessToken(&user, sc.Env.RefreshTokenSecret, sc.Env.RefreshTokenExpiryHour)
 	if err != nil {
-		context.JSON(http.StatusInternalServerError, domain.ErrorResponse{
+		context.JSON(http.StatusInternalServerError, common.ErrorResponse{
 			Message: err.Error(),
 		})
 		return
